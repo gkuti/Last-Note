@@ -1,10 +1,11 @@
-import {ActivityIndicator, Pressable, Text, TouchableOpacity, View} from "react-native";
-import Logo from "../signin.svg";
+import {ActivityIndicator, Platform, Text, TouchableOpacity, View} from "react-native";
+import Logo from "../assets/signin.svg";
 import {styles} from "../styles/styles";
 import * as Google from "expo-auth-session/build/providers/Google";
 import React, {useState} from "react";
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import * as AuthSession from "expo-auth-session";
+import * as Notifications from 'expo-notifications';
+import Config from "../config/Config.json";
 
 export function SigninScreen({navigation}) {
     const [data, setData] = useState({})
@@ -35,15 +36,14 @@ export function SigninScreen({navigation}) {
         }
     }
     const saveUser = async (user) => {
+        global.user = user
         try {
             const jsonValue = JSON.stringify(user)
-            console.log(JSON.parse(jsonValue))
             await AsyncStorage.setItem('userProfile', jsonValue)
         } catch (e) {
             console.error(e)
         }
     }
-
     const saveToken = async (token) => {
         try {
             await AsyncStorage.setItem('token', token)
@@ -51,10 +51,25 @@ export function SigninScreen({navigation}) {
             console.error(e)
         }
     }
+    const savePushToken = async (user) => {
+        console.log(user)
+        const response = await fetch(Config.API_BASE_URL + 'api/user/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(user)
+        });
+        const json = await response.json()
+        console.log(json)
+        if (!response.ok) {
+            console.error(JSON.stringify(json))
+            throw "Unable to save token"
+        }
+    }
 
     React.useEffect(() => {
         if (response?.type === 'success') {
-            console.log(response)
             const {authentication} = response;
             saveToken(authentication.accessToken).then(() => {
                     setOAuthSigned(true)
@@ -72,6 +87,23 @@ export function SigninScreen({navigation}) {
             saveUser(data).then(_ => {
                 navigation.replace("Main")
             })
+            // registerForPushNotificationsAsync().then(token => {
+            //     if (token != null) {
+            //         savePushToken({userId: data.id, pushToken: token}).then(_ =>
+            //             saveUser(data).then(_ => {
+            //                 navigation.replace("Main")
+            //             })
+            //         ).catch(e => {
+            //             setOAuthSigned(false)
+            //             console.error(e)
+            //         })
+            //     } else {
+            //         setOAuthSigned(false)
+            //     }
+            // }).catch(e => {
+            //     setOAuthSigned(false)
+            //     console.error(e)
+            // })
         }
     }, [data])
 
@@ -82,7 +114,6 @@ export function SigninScreen({navigation}) {
     const getToken = async () => {
         try {
             const token = await AsyncStorage.getItem('token')
-            console.log(token)
             if (token !== null) {
                 getUserProfile(token).catch(e => {
                     setOAuthSigned(false)
@@ -96,6 +127,29 @@ export function SigninScreen({navigation}) {
             setOAuthSigned(false)
         }
     }
+
+    const registerForPushNotificationsAsync = async () => {
+        const {status: existingStatus} = await Notifications.getPermissionsAsync();
+        let finalStatus = existingStatus;
+        if (existingStatus !== 'granted') {
+            const {status} = await Notifications.requestPermissionsAsync();
+            finalStatus = status;
+        }
+        if (finalStatus !== 'granted') {
+            alert('Failed to get push token for push notification!');
+            return;
+        }
+        return (await Notifications.getExpoPushTokenAsync()).data
+
+        if (Platform.OS === 'android') {
+            await Notifications.setNotificationChannelAsync('default', {
+                name: 'default',
+                importance: Notifications.AndroidImportance.MAX,
+                vibrationPattern: [0, 250, 250, 250],
+                lightColor: '#FF231F7C',
+            });
+        }
+    };
 
     return (
         <View style={{padding: 16}}>

@@ -11,17 +11,8 @@ import {CommonActions} from "@react-navigation/native";
 export default function SettingsScreen({navigation}) {
     const [user, setUser] = useState({})
     React.useEffect(() => {
-        getData()
+        setUser(global.user)
     }, [])
-    const getData = async () => {
-        try {
-            const jsonValue = await AsyncStorage.getItem('userProfile')
-            console.log(JSON.parse(jsonValue))
-            setUser(JSON.parse(jsonValue))
-        } catch (e) {
-            // error reading value
-        }
-    }
 
     const signOut = async () => {
         const token = AsyncStorage.getItem('token')
@@ -29,9 +20,7 @@ export default function SettingsScreen({navigation}) {
             token: token,
             clientId: '977657415683-pr3k3bm7cmg5b3oj8f414kr8sq6m7hj0.apps.googleusercontent.com'
         }, Google.discovery).then(r => {
-            console.log(r)
             AsyncStorage.removeItem('token')
-
             navigation.getParent().dispatch(
                 CommonActions.navigate({
                         name: 'SigninScreen'

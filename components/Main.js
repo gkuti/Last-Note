@@ -65,7 +65,7 @@ function NoteStack() {
                 component={NotesScreen}
                 options={{
                     title: "Notes",
-                    headerLeft: () => null,
+                    headerLeft: () => null
                 }}/>
             <Stack.Screen
                 name="AddNoteScreen"

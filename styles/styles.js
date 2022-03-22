@@ -41,11 +41,29 @@ export const styles = StyleSheet.create({
         elevation: 3,
         backgroundColor: "#181818",
     },
+    buttonDisabled: {
+        marginTop: 44,
+        alignItems: "center",
+        justifyContent: "center",
+        paddingVertical: 12,
+        borderRadius: 6,
+        elevation: 3,
+        backgroundColor: "#cecece",
+    },
     text: {
         fontSize: 16,
         lineHeight: 21,
         letterSpacing: 0.25,
         color: "white",
+    },
+    loading: {
+        backgroundColor: 'rgba(0,0,0,0.15)',
+        bottom: 0,
+        flex: 1,
+        left: 0,
+        position: 'absolute',
+        right: 0,
+        top: 0
     }
 });
 
@@ -62,6 +80,7 @@ export const textStyles = StyleSheet.create({
 
 export const listStyles = StyleSheet.create({
     container: {
+        justifyContent: "center",
         flex: 1,
         backgroundColor: "#ffffff"
     },
@@ -116,6 +135,7 @@ export const listStyles = StyleSheet.create({
     },
     noteItemContainer: {
         marginLeft: 16,
+        marginRight: 16,
         marginTop: 8,
         marginBottom: 8,
     },
@@ -129,6 +149,7 @@ export const listStyles = StyleSheet.create({
         flexDirection: "row"
     },
     note: {
+        flex: 1,
         fontSize: 14,
         color: "#949494",
     }
