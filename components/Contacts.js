@@ -7,6 +7,7 @@ import Ionicons from "react-native-vector-icons/Ionicons";
 import Config from "../config/Config.json";
 import {Spinner} from "./Spinner";
 import {Controller, useForm} from "react-hook-form";
+import {getInitials} from "../utils/Util";
 
 export function ContactsScreen({navigation, route}) {
     const [contacts, setContacts] = useState([])
@@ -137,7 +138,7 @@ const ContactItem = ({contact, clickHandler, deleteHandler}) => {
                 <View>
                     <View style={listStyles.contactItemContainer}>
                         <View style={listStyles.initialsContainer}>
-                            <Text style={listStyles.initials}>{"AN"}</Text>
+                            <Text style={listStyles.initials}>{getInitials(contact.contactName).toUpperCase()}</Text>
                         </View>
                         <View style={listStyles.contactContainer}>
                             <Text style={listStyles.name}>{contact.contactName}</Text>

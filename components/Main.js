@@ -7,6 +7,8 @@ import Ionicons from "react-native-vector-icons/Ionicons";
 import {NavigationContainer} from "@react-navigation/native";
 import SettingsScreen from "./Settings";
 import {styles} from "../styles/styles";
+import * as Notifications from "expo-notifications";
+import React from "react";
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();

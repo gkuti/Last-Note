@@ -56,7 +56,7 @@ export const styles = StyleSheet.create({
         letterSpacing: 0.25,
         color: "white",
     },
-    loading: {
+    modal: {
         backgroundColor: 'rgba(0,0,0,0.15)',
         bottom: 0,
         flex: 1,
