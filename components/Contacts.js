@@ -2,7 +2,7 @@ import {Alert, Animated, FlatList, Pressable, StyleSheet, Text, TextInput, Touch
 import {listStyles, styles} from "../styles/styles";
 import Logo from "../assets/add_contacts.svg";
 import {Swipeable} from "react-native-gesture-handler";
-import React, {useEffect, useState} from "react";
+import React, {useState} from "react";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import Config from "../config/Config.json";
 import {Spinner} from "./Spinner";
@@ -13,7 +13,10 @@ export function ContactsScreen({navigation, route}) {
     const [contacts, setContacts] = useState([])
     const [refreshFlag, updateRefreshFlag] = useState(false)
     const [fetching, setFetching] = useState(true)
+
+
     React.useEffect(() => {
+        //Add top right icon to toolbar
         navigation.setOptions({
             headerRight: () =>
                 <TouchableOpacity style={{marginRight: 16}} activeOpacity={.5} onPress={() => {
@@ -22,6 +25,7 @@ export function ContactsScreen({navigation, route}) {
                     <Ionicons name={"add-circle"} size={24} color={"#181818"}/>
                 </TouchableOpacity>
         })
+        //Load user contacts
         getContacts().then(data => {
             setContacts(data)
             setFetching(false)
@@ -30,6 +34,7 @@ export function ContactsScreen({navigation, route}) {
         })
     }, [])
 
+    //API call to fetch user contacts using the users id
     const getContacts = async () => {
         const response = await fetch(Config.API_BASE_URL + 'api/contacts/' + global.user.id, {
             headers: {
@@ -44,13 +49,16 @@ export function ContactsScreen({navigation, route}) {
         return json
     }
 
+    //We use this hook to update the in memory contacts list when the user creates or modifies a contact
     React.useEffect(() => {
         if (route.params?.contact) {
             updateData(route.params.contact)
         }
     }, [route.params?.contact]);
 
+    //Updates the contacts list with the new contact by updating the contacts if present or appending the contacts if it's new
     const updateData = (contact) => {
+        //We find the index of the contact from the current contact list, it returns -1 if it's  not found
         const index = contacts.findIndex(otherContact => otherContact.id === contact.id)
         if (index > -1) {
             contacts[index] = contact
@@ -63,6 +71,7 @@ export function ContactsScreen({navigation, route}) {
         console.log(index)
     }
 
+    //API call to delete a users contact using the contact id
     const deleteContact = async (contact) => {
         const response = await fetch(Config.API_BASE_URL + 'api/contacts/' + contact.id, {
             method: 'DELETE',
@@ -78,6 +87,7 @@ export function ContactsScreen({navigation, route}) {
         return contact
     }
 
+    //List of contacts screen, displays "Add a new Contact" view when the list of contacts is empty
     return (
         <View style={{flex: 1}}>
             <Spinner visible={fetching}/>
@@ -114,6 +124,7 @@ export function ContactsScreen({navigation, route}) {
     );
 }
 
+//A single row contact item using a Swipeable component to support swipe to delete
 const ContactItem = ({contact, clickHandler, deleteHandler}) => {
     return (
         <Swipeable renderRightActions={(
@@ -155,10 +166,14 @@ const ContactItem = ({contact, clickHandler, deleteHandler}) => {
 
 export function AddContactScreen({navigation, route}) {
     const [saving, setSaving] = useState(false)
+
+    //Check if the route contains a contact to determine if the user is editing or adding a new contact
     let contact
     if (route.params) {
         contact = route.params.contact
     }
+
+    //Form controller using isValid to determine form state
     const {
         control,
         handleSubmit,
@@ -174,6 +189,7 @@ export function AddContactScreen({navigation, route}) {
         }
     )
 
+    //Button onPress handler for saving a new contact
     const onSubmit = data => {
         saveContact({
             userId: global.user.id,
@@ -193,6 +209,7 @@ export function AddContactScreen({navigation, route}) {
         })
     }
 
+    //API call to save a new contact
     const saveContact = async (data) => {
         setSaving(true)
         const route = contact === undefined ? 'api/contacts/' : "api/contacts/" + contact.id

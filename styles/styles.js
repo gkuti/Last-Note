@@ -75,6 +75,11 @@ export const textStyles = StyleSheet.create({
         paddingBottom: 8,
         fontWeight: "bold",
         color: "#444444",
+    },
+    text: {
+        fontSize: 16,
+        paddingBottom: 8,
+        color: "#656565",
     }
 })
 

@@ -4,17 +4,16 @@ import {SigninScreen} from "./components/Signin";
 import {NavigationContainer} from "@react-navigation/native";
 import React from "react";
 import * as Notifications from "expo-notifications";
+import {StatusBar} from "react-native";
 
 const Stack = createStackNavigator();
 export default function App() {
-    React.useEffect(() => {
-        const subscription = Notifications.addNotificationResponseReceivedListener(response => {
-            console.log(response.notification.request.content.data)
-        });
-        return () => subscription.remove();
-    }, []);
     return (
         <NavigationContainer>
+            <StatusBar
+                animated={true}
+                backgroundColor="#61dafb"
+                barStyle={'dark-content'}/>
             <Stack.Navigator initialRouteName="SigninScreen">
                 <Stack.Screen
                     name="SigninScreen"

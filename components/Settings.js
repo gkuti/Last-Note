@@ -1,6 +1,5 @@
-import {ActivityIndicator, Image, Modal, Pressable, Text, View} from "react-native";
+import {ActivityIndicator, Image, Modal, Pressable, Text, View, TouchableOpacity} from "react-native";
 import {listStyles, styles, textStyles} from "../styles/styles";
-import {TouchableOpacity} from "react-native-gesture-handler";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import React, {useState} from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -18,7 +17,25 @@ export default function SettingsScreen({navigation}) {
     const [checkin, setCheckin] = useState({})
 
     React.useEffect(() => {
+        //Add top right icon to toolbar
+        navigation.setOptions({
+            headerRight: () => <TouchableOpacity style={{marginRight: 16}} activeOpacity={.5} onPress={() => {
+                setLoading(true)
+                userCheckin().then(value => {
+                    setLoading(false)
+                }).catch(reason => {
+                    console.error(reason)
+                    setLoading(false)
+                })
+            }}>
+                <Ionicons name={"checkmark-circle"} size={24} color={"#181818"}/>
+            </TouchableOpacity>
+        })
+    }, [navigation])
+
+    React.useEffect(() => {
         setUser(global.user)
+        //Load user checkin
         getCheckin().then(data => {
             setLoading(false)
             setCheckin(data)
@@ -28,6 +45,7 @@ export default function SettingsScreen({navigation}) {
         })
     }, [])
 
+    //API call to fetch a user's checkin
     const getCheckin = async () => {
         const response = await fetch(Config.API_BASE_URL + 'api/checkin/' + global.user.id, {
             headers: {
@@ -42,6 +60,7 @@ export default function SettingsScreen({navigation}) {
         return json
     }
 
+    //API call to update a user's checkin frequency
     const updateFrequency = async (checkin) => {
         setLoading(true)
         const response = await fetch(Config.API_BASE_URL + 'api/checkin/frequency/', {
@@ -57,6 +76,21 @@ export default function SettingsScreen({navigation}) {
         return json
     }
 
+    //API call to submit a checkin
+    const userCheckin = async () => {
+        setLoading(true)
+        const response = await fetch(Config.API_BASE_URL + 'api/checkin/' + global.user.id, {
+            method: 'PUT'
+        });
+        if (!response.ok) {
+            const json = await response.json()
+            console.error(JSON.stringify(json))
+            throw 'Unable to checkin'
+        }
+        return response.status
+    }
+
+    //This handles signing the user out
     const signOut = async () => {
         const token = AsyncStorage.getItem('token')
         AuthSession.revokeAsync({
@@ -146,25 +180,10 @@ export default function SettingsScreen({navigation}) {
                         fontSize: 14, padding: 16
                     }]}>{"1.0"}</Text>
             </View>
+            <View style={{
+                backgroundColor: "#e3e3e3", height: 1
+            }}/>
         </View>
-        <TouchableOpacity activeOpacity={.5}>
-            <View style={{backgroundColor: "#ffffff"}}>
-                <View style={{
-                    backgroundColor: "#e3e3e3", marginLeft: 16, height: 1
-                }}/>
-                <View style={{flexDirection: "row"}}>
-                    <Text
-                        style={[listStyles.name, {
-                            fontSize: 14, padding: 16, flexGrow: 1
-                        }]}>{"3rd-party Libraries"}</Text>
-                    <Ionicons name={"chevron-forward"} size={16} color={"#444444"}
-                              style={{marginRight: 16, alignSelf: "center"}}/>
-                </View>
-                <View style={{
-                    backgroundColor: "#e3e3e3", height: 1
-                }}/>
-            </View>
-        </TouchableOpacity>
         <Pressable style={[styles.button, {marginLeft: 16, marginRight: 16}]} onPress={() => signOut()}>
             <Text style={styles.text}>{"Signout"}</Text>
         </Pressable>
@@ -172,7 +191,6 @@ export default function SettingsScreen({navigation}) {
 }
 
 const FrequencyPreference = ({visible, close, update, checkinFrequency}) => {
-    console.log(checkinFrequency)
     return <Modal statusBarTranslucent={true} transparent visible={visible}>
         <View style={[styles.modal, {justifyContent: 'center'}]}>
             <View style={{backgroundColor: "#ffffff", margin: 32, borderRadius: 16}}>
@@ -181,7 +199,7 @@ const FrequencyPreference = ({visible, close, update, checkinFrequency}) => {
                         style={[listStyles.name, {
                             fontSize: 16, paddingTop: 12, paddingBottom: 12, flexGrow: 1, textAlign: 'center'
                         }]}>{"Check-in Frequency"}</Text>
-                    <TouchableOpacity style={{justifyContent: "center", flex: 1}} activeOpacity={.5}
+                    <TouchableOpacity style={{justifyContent: "center"}} activeOpacity={.5}
                                       onPress={close}>
                         <Ionicons name={"close"} size={20} color={"#444444"}/>
                     </TouchableOpacity>
@@ -189,8 +207,8 @@ const FrequencyPreference = ({visible, close, update, checkinFrequency}) => {
                 <View style={{
                     backgroundColor: "#e3e3e3", height: 1
                 }}/>
-                <FrequencyRow title={"Every 5 Minutes"} clickHandler={() => update("5minutes")}
-                              checked={checkinFrequency === "5minutes"}/>
+                <FrequencyRow title={"Every 1 Minute"} clickHandler={() => update("1minute")}
+                              checked={checkinFrequency === "1minute"}/>
                 <View style={{
                     backgroundColor: "#e3e3e3", height: 1, marginLeft: 16
                 }}/>

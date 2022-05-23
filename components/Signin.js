@@ -60,8 +60,8 @@ export function SigninScreen({navigation}) {
             },
             body: JSON.stringify(user)
         });
-        const json = await response.json()
-        console.log(json)
+        //const json = await response.json()
+        console.log(response.status)
         if (!response.ok) {
             console.error(JSON.stringify(json))
             throw "Unable to save token"
@@ -84,26 +84,26 @@ export function SigninScreen({navigation}) {
 
     React.useEffect(() => {
         if (Object.keys(data).length !== 0) {
-            saveUser(data).then(_ => {
-                navigation.replace("Main")
+            registerForPushNotificationsAsync().then(token => {
+                if (token != null) {
+                    savePushToken({userId: data.id, pushToken: token}).then(_ =>
+                        saveUser(data).then(_ => {
+                            navigation.replace("Main")
+                        })
+                    ).catch(e => {
+                        setOAuthSigned(false)
+                        console.error(e)
+                    })
+                } else {
+                    setOAuthSigned(false)
+                }
+            }).catch(e => {
+                saveUser(data).then(_ => {
+                    navigation.replace("Main")
+                })
+                setOAuthSigned(false)
+                console.error(e)
             })
-            // registerForPushNotificationsAsync().then(token => {
-            //     if (token != null) {
-            //         savePushToken({userId: data.id, pushToken: token}).then(_ =>
-            //             saveUser(data).then(_ => {
-            //                 navigation.replace("Main")
-            //             })
-            //         ).catch(e => {
-            //             setOAuthSigned(false)
-            //             console.error(e)
-            //         })
-            //     } else {
-            //         setOAuthSigned(false)
-            //     }
-            // }).catch(e => {
-            //     setOAuthSigned(false)
-            //     console.error(e)
-            // })
         }
     }, [data])
 

@@ -1,13 +1,10 @@
 import {AddContactScreen, ContactsScreen} from "./Contacts";
-import {Platform, TouchableOpacity} from "react-native";
+import {Platform} from "react-native";
 import {AddNoteScreen, NotesScreen} from "./Notes";
 import {createStackNavigator} from "@react-navigation/stack";
 import {createBottomTabNavigator} from "@react-navigation/bottom-tabs";
 import Ionicons from "react-native-vector-icons/Ionicons";
-import {NavigationContainer} from "@react-navigation/native";
 import SettingsScreen from "./Settings";
-import {styles} from "../styles/styles";
-import * as Notifications from "expo-notifications";
 import React from "react";
 
 const Stack = createStackNavigator();
@@ -48,11 +45,6 @@ function SettingsStack() {
                 options={{
                     title: "Settings",
                     headerLeft: () => null,
-                    headerRight: () =>
-                        <TouchableOpacity style={{marginRight: 16}} activeOpacity={.5} onPress={() => {
-                        }}>
-                            <Ionicons name={"checkmark-circle"} size={24} color={"#181818"}/>
-                        </TouchableOpacity>
                 }}/>
         </Stack.Navigator>
     );
